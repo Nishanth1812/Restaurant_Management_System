@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - RMS</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: #020617;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Mesmerizing Background Animation */
+        body::before, body::after {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.4;
+            animation: float 10s infinite ease-in-out alternate;
+            z-index: -1;
+        }
+        
+        body::before {
+            background: radial-gradient(circle, #6366F1, #8B5CF6);
+            top: -100px;
+            left: -100px;
+        }
+        
+        body::after {
+            background: radial-gradient(circle, #EC4899, #F472B6);
+            bottom: -100px;
+            right: -100px;
+            animation-delay: -5s;
+        }
+        
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, 50px) scale(1.1); }
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        
+        .login-header h2 {
+            color: white;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        
+        .login-header p {
+            color: #94A3B8;
+            font-size: 1rem;
+        }
+
+        input {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            color: white;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            width: 100%;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            background: rgba(15, 23, 42, 0.8);
+            border-color: #818CF8;
+            box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.1);
+            outline: none;
+        }
+
+        label {
+            color: #CBD5E1;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            border: none;
+            color: white;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 35px -5px rgba(99, 102, 241, 0.5);
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #94A3B8;
+        }
+
+        .login-footer a {
+            color: #8B5CF6;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="login-header">
+            <h2>Welcome Back</h2>
+            <p>Sign in to access your dashboard</p>
+        </div>
+        <form id="login-form">
+            <div>
+                <label for="username">Username</label>
+                <input type="text" id="username" required placeholder="Enter your username" autocomplete="username">
+            </div>
+            <div>
+                <label for="password">Password</label>
+                <input type="password" id="password" required placeholder="Enter your password" autocomplete="new-password">
+            </div>
+            <button type="submit" class="btn btn-primary">Sign In</button>
+        </form>
+        <p class="login-footer">
+            Don't have an account? <a href="signup.html">Sign Up</a>
+        </p>
+    </div>
+    <script src="auth.js"></script>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            await login(u, p);
+        });
+    </script>
+</body>
+</html>

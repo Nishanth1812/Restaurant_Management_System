@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Orders - RMS</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app-layout">
+        <div id="sidebar-container"></div>
+        <main class="main-content">
+            <div class="container">
+                <div class="flex justify-between items-center mb-4">
+                    <h1>Orders</h1>
+                    <button class="btn btn-primary" onclick="openNewOrderModal()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.5rem;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        New Order
+                    </button>
+                </div>
+
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div id="orders-list">Loading...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- New Order Modal -->
+    <!-- New Order Modal -->
+    <div id="orderModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Order</h2>
+                <button onclick="closeModal()" class="modal-close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <form id="orderForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Table</label>
+                        <select id="orderTable" class="form-control" required>
+                            <!-- Tables loaded here -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Add Items</label>
+                        <div class="flex gap-2">
+                            <select id="itemSelect" class="form-control" style="flex: 1;">
+                                <!-- Menu items loaded here -->
+                            </select>
+                            <input type="number" id="itemQty" class="form-control" value="1" min="1" style="width: 80px;">
+                            <button type="button" onclick="addItemToOrder()" class="btn btn-primary" style="padding: 0.75rem 1rem;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Order Summary</label>
+                        <div id="orderItemsList" class="order-summary-box">
+                            <p class="text-center" style="color: var(--text-muted); margin-top: 1.5rem;">No items added yet</p>
+                        </div>
+                        <div class="flex justify-between items-center mt-3" style="font-weight: 700; font-size: 1.1rem;">
+                            <span>Total:</span>
+                            <span id="orderTotal" style="color: var(--primary);">₹0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" onclick="closeModal()" class="btn" style="background: transparent; border: 1px solid var(--border); color: var(--text-muted);">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Order Modal -->
+    <div id="viewOrderModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Order Details #<span id="viewOrderId"></span></h2>
+                <button onclick="closeViewModal()" class="modal-close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="flex justify-between mb-4">
+                    <div>
+                        <p class="form-label">Table</p>
+                        <p id="viewOrderTable" style="font-weight: 600; color: white;"></p>
+                    </div>
+                    <div>
+                        <p class="form-label">Status</p>
+                        <span id="viewOrderStatus" class="badge"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Items</label>
+                    <div id="viewOrderItems" class="order-summary-box">
+                        <!-- Items loaded here -->
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mt-4" style="font-weight: 700; font-size: 1.2rem;">
+                    <span>Total:</span>
+                    <span id="viewOrderTotal" style="color: var(--primary);"></span>
+                </div>
+                
+                <div class="mt-6 pt-4 border-t border-[var(--border)]">
+                    <label class="form-label">Update Status</label>
+                    <div class="flex gap-2">
+                        <button onclick="updateStatus('PENDING')" class="btn" style="background: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.2);">Pending</button>
+                        <button onclick="updateStatus('COMPLETED')" class="btn" style="background: rgba(52, 211, 153, 0.1); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.2);">Completed</button>
+                        <button onclick="updateStatus('CANCELLED')" class="btn" style="background: rgba(248, 113, 113, 0.1); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.2);">Cancelled</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="api.js"></script>
+    <script src="main.js"></script>
+    <script>
+        requireAuth();
+        let currentOrderItems = [];
+        let menuItems = [];
+        let currentViewingOrderId = null;
+
+        async function loadData() {
+            // Load Tables
+            const tablesRes = await apiRequest('/orders/tables/');
+            if (tablesRes && tablesRes.ok) {
+                const tables = await tablesRes.json();
+                const select = document.getElementById('orderTable');
+                select.innerHTML = tables.map(t => `<option value="${t.id}">Table ${t.number} (${t.capacity} seats)</option>`).join('');
+            }
+
+            // Load Menu Items
+            const menuRes = await apiRequest('/menu/items/');
+            if (menuRes && menuRes.ok) {
+                menuItems = await menuRes.json();
+                const select = document.getElementById('itemSelect');
+                select.innerHTML = menuItems.map(i => `<option value="${i.id}" data-price="${i.price}">${i.name} - ₹${i.price}</option>`).join('');
+            }
+        }
+
+        async function loadOrders() {
+            const res = await apiRequest('/orders/orders/');
+            if (res && res.ok) {
+                const orders = await res.json();
+                const container = document.getElementById('orders-list');
+                if (orders.length === 0) {
+                    container.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-muted);">No orders found.</div>';
+                    return;
+                }
+                container.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Table</th>
+                                <th>Status</th>
+                                <th>Total</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${orders.map(o => {
+                                let badgeClass = 'badge-warning';
+                                if (o.status === 'COMPLETED') badgeClass = 'badge-success';
+                                if (o.status === 'CANCELLED') badgeClass = 'badge-danger';
+                                return `
+                                <tr>
+                                    <td style="font-family: monospace; color: var(--text-muted);">#${o.id}</td>
+                                    <td>Table ${o.table}</td>
+                                    <td><span class="badge ${badgeClass}">${o.status}</span></td>
+                                    <td style="font-weight: 600; color: var(--text-main);">₹${o.total_price}</td>
+                                    <td>
+                                        <button class="btn btn-primary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;" onclick="viewOrder(${o.id})">View</button>
+                                        <button class="btn btn-delete-order" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); margin-left: 0.5rem;" onclick="deleteOrder(${o.id})">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `}).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+        }
+        
+        function openNewOrderModal() {
+            currentOrderItems = [];
+            updateOrderSummary();
+            document.getElementById('orderForm').reset();
+            document.getElementById('orderModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('orderModal').classList.remove('show');
+        }
+
+        function closeViewModal() {
+            document.getElementById('viewOrderModal').classList.remove('show');
+            currentViewingOrderId = null;
+        }
+
+        function addItemToOrder() {
+            const select = document.getElementById('itemSelect');
+            const itemId = select.value;
+            const itemQty = parseInt(document.getElementById('itemQty').value);
+            const item = menuItems.find(i => i.id == itemId);
+
+            if (item && itemQty > 0) {
+                const existing = currentOrderItems.find(i => i.item_id == itemId);
+                if (existing) {
+                    existing.quantity += itemQty;
+                } else {
+                    currentOrderItems.push({
+                        item_id: itemId,
+                        name: item.name,
+                        price: parseFloat(item.price),
+                        quantity: itemQty
+                    });
+                }
+                updateOrderSummary();
+            }
+        }
+
+        function updateOrderSummary() {
+            const container = document.getElementById('orderItemsList');
+            const totalEl = document.getElementById('orderTotal');
+            
+            if (currentOrderItems.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 2rem;">No items added yet</p>';
+                totalEl.innerText = '$0.00';
+                return;
+            }
+
+            let total = 0;
+            container.innerHTML = currentOrderItems.map((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                return `
+                    <div class="flex justify-between items-center mb-2" style="font-size: 0.9rem;">
+                        <span>${item.name} x ${item.quantity}</span>
+                        <div class="flex items-center gap-4">
+                            <span>₹${itemTotal.toFixed(2)}</span>
+                            <button type="button" onclick="removeItem(${index})" style="color: #EF4444; background: none; border: none; cursor: pointer;">&times;</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            totalEl.innerText = '₹' + total.toFixed(2);
+        }
+
+        function removeItem(index) {
+            currentOrderItems.splice(index, 1);
+            updateOrderSummary();
+        }
+
+        document.getElementById('orderForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (currentOrderItems.length === 0) {
+                alert('Please add at least one item');
+                return;
+            }
+
+            const data = {
+                table: document.getElementById('orderTable').value,
+                items: currentOrderItems.map(i => ({ item: i.item_id, quantity: i.quantity }))
+            };
+
+            const res = await apiRequest('/orders/orders/', 'POST', data);
+            if (res && res.ok) {
+                closeModal();
+                loadOrders();
+            } else {
+                alert('Failed to create order');
+            }
+        });
+
+        async function deleteOrder(id) {
+            if (!confirm('Are you sure you want to delete this order?')) return;
+            
+            const res = await apiRequest(`/orders/orders/${id}/`, 'DELETE');
+            if (res && res.ok) {
+                loadOrders();
+            } else {
+                alert('Failed to delete order');
+            }
+        }
+
+        async function viewOrder(id) {
+            currentViewingOrderId = id;
+            const res = await apiRequest(`/orders/orders/${id}/`);
+            if (res && res.ok) {
+                const order = await res.json();
+                document.getElementById('viewOrderId').innerText = order.id;
+                document.getElementById('viewOrderTable').innerText = `Table ${order.table}`;
+                
+                const statusEl = document.getElementById('viewOrderStatus');
+                statusEl.innerText = order.status;
+                statusEl.className = 'badge';
+                if (order.status === 'COMPLETED') statusEl.classList.add('badge-success');
+                else if (order.status === 'CANCELLED') statusEl.classList.add('badge-danger');
+                else statusEl.classList.add('badge-warning');
+
+                document.getElementById('viewOrderTotal').innerText = `₹${order.total_price}`;
+
+                const itemsContainer = document.getElementById('viewOrderItems');
+                itemsContainer.innerHTML = order.items.map(item => `
+                    <div class="flex justify-between items-center mb-2" style="font-size: 0.9rem;">
+                        <span style="color: white;">${item.item_name || 'Item #' + item.item} x ${item.quantity}</span>
+                        <span style="color: var(--text-muted);">₹${item.price || '?'}</span>
+                    </div>
+                `).join('');
+
+                document.getElementById('viewOrderModal').classList.add('show');
+            } else {
+                alert('Failed to load order details');
+            }
+        }
+
+        async function updateStatus(status) {
+            if (!currentViewingOrderId) return;
+            
+            const res = await apiRequest(`/orders/orders/${currentViewingOrderId}/`, 'PATCH', { status });
+            if (res && res.ok) {
+                viewOrder(currentViewingOrderId); // Refresh modal
+                loadOrders(); // Refresh list
+            } else {
+                alert('Failed to update status');
+            }
+        }
+
+        loadData();
+        loadOrders();
+    </script>
+</body>
+</html>
